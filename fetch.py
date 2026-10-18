@@ -30,6 +30,10 @@ def main() -> int:
         ctx = browser.new_context(locale="uk-UA", timezone_id="Europe/Kyiv")
         page = ctx.new_page()
         page.goto(PAGE, wait_until="networkidle", timeout=90_000)
+        try:  # the Incapsula challenge reloads the page once it passes
+            page.wait_for_function("typeof DisconSchedule !== 'undefined' && DisconSchedule.preset", timeout=60_000)
+        except Exception as e:
+            print("wait failed:", str(e)[:100])
         html = page.content()
         browser.close()
     new = {"preset": extract(html, "preset"), "fact": extract(html, "fact")}
